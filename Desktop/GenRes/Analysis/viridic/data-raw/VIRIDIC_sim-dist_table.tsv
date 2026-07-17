@@ -1,0 +1,9 @@
+"genome"	"CP162593.1_Pseudomonas_sp._B26140_plasmid_unnamed1,_complete_sequence"	"CP115281.1_Pseudomonas_aeruginosa_strain_F010_plasmid_pF010_1,_complete_sequence"	"CP096940.1_Pseudomonas_aeruginosa_strain_NY5520_plasmid_pNY5520-NR,_complete_sequence"	"CP194203.1_Pseudomonas_aeruginosa_strain_CRPA_64_plasmid_unnamed1"	"AP022474.1_Pseudomonas_monteilii_STW0522-72_plasmid_pSTW0522-72-1_DNA,_complete_sequence"	"CP075795.1Pseudomonas_aeruginosa_strain_PaLo418_plasmid_pPHPALO418,_complete_sequence"	"contig_009"	"CP102178.1_Pseudomonas_corrugata_strain_B21-055_plasmid_pPcorr-B21-055,_complete_sequence"
+"CP162593.1_Pseudomonas_sp._B26140_plasmid_unnamed1,_complete_sequence"	100	46.28	47.192	47.635	47.166	44.168	43.112	44.587
+"CP115281.1_Pseudomonas_aeruginosa_strain_F010_plasmid_pF010_1,_complete_sequence"	46.28	100	92.786	89.974	53.818	60.691	53.303	52.127
+"CP096940.1_Pseudomonas_aeruginosa_strain_NY5520_plasmid_pNY5520-NR,_complete_sequence"	47.192	92.786	259.551	93.265	55.035	61.435	54.257	53.011
+"CP194203.1_Pseudomonas_aeruginosa_strain_CRPA_64_plasmid_unnamed1"	47.635	89.974	93.265	100	54.237	61.256	54.319	52.536
+"AP022474.1_Pseudomonas_monteilii_STW0522-72_plasmid_pSTW0522-72-1_DNA,_complete_sequence"	47.166	53.818	55.035	54.237	100	80.73	64.328	56.418
+"CP075795.1Pseudomonas_aeruginosa_strain_PaLo418_plasmid_pPHPALO418,_complete_sequence"	44.168	60.691	61.435	61.256	80.73	100	66.761	59.757
+"contig_009"	43.112	53.303	54.257	54.319	64.328	66.761	100	65.648
+"CP102178.1_Pseudomonas_corrugata_strain_B21-055_plasmid_pPcorr-B21-055,_complete_sequence"	44.587	52.127	53.011	52.536	56.418	59.757	65.648	100
