@@ -1,3 +1,4 @@
+
 # load packages -----------------------------------------------------------
 library(tidyverse)
 library(dplyr)
@@ -8,10 +9,84 @@ cluster_table <- read_tsv("data-raw/VIRIDIC_cluster_table.tsv")
 
 sim_dist_table <- read_tsv("data-raw/VIRIDIC_sim-dist_table.tsv")
 
+# heat map ----------------------------------------------------------------
 
-# heatmap -----------------------------------------------------------------
-install.packages("pheatmap")
-library(pheatmap)
+  # i want my heat map to be clustered so that the most similar comparisons are grouped
+  # i want my scale to be capped so the outlier (260 similarity) is grouped with the 100 similarity
 
-heatmap_matrix <- as.matrix(sim_dist_table[,-1]) # exclude the first column which contains the genome names
-rownames(heatmap_matrix) <- sim_dist_table$genome # paste the values from the genome column to the row names of the matrix
+# format data into matrix for clustering
+heatmap_matrix <- as.matrix(sim_dist_table[, -1])
+rownames(heatmap_matrix) <- sim_dist_table$genome
+
+# apply a cap at 100 so the outlier at 260 doesnt ruin the similarity
+heatmap_matrix[heatmap_matrix > 100] <- 100
+
+# calculate average similarity for each genome
+avg_similarities <- rowMeans(heatmap_matrix)
+
+# sort from lowest to highest similarities
+sorted_genomes <- names(sort(avg_similarities))
+
+# create a symmetrical order 
+# i want the lowest averages to be pushed towards the edges
+# and the highest averages to be clustered in the middle
+n <- length(sorted_genomes)
+symmetric_indices <- c(seq(1, n, by = 2), rev(seq(2, n, by = 2)))
+center_ordered_genomes <- sorted_genomes[symmetric_indices]
+
+# create colour gradient for heat map
+# setting the colour scale for the heat map
+library(RColorBrewer)
+display.brewer.all()
+brewer.pal(9, "OrRd")
+
+# Define key transition points in your data
+points <- c(0, 20, 40, 50, 60, 70, 80, 90, 100)
+
+# Map colors to those points. 
+# Notice how both 100 and 260 are mapped to "firebrick" (or very close shades)
+my_colors <- c("#FFF7EC", "#FEE8C8", "#FDD49E", "#FDBB84", "#FC8D59", "#EF6548", "#D7301F","#B30000","#7F0000" )
+
+# clean up the axis labels
+clean_labels <- c("CP162593.1_Pseudomonas_sp._B26140_plasmid_unnamed1,_complete_sequence" = "P. sp. B26140",
+                   "CP115281.1_Pseudomonas_aeruginosa_strain_F010_plasmid_pF010_1,_complete_sequence" = "P. aeruginosa F010",
+                   "CP096940.1_Pseudomonas_aeruginosa_strain_NY5520_plasmid_pNY5520-NR,_complete_sequence" = "P. aeruginosa NY5520",
+                   "CP194203.1_Pseudomonas_aeruginosa_strain_CRPA_64_plasmid_unnamed1" = "P.aeruginosa CRPA 64",
+                   "AP022474.1_Pseudomonas_monteilii_STW0522-72_plasmid_pSTW0522-72-1_DNA,_complete_sequence" = "P. monteilii STW0522-72",
+                   "CP075795.1Pseudomonas_aeruginosa_strain_PaLo418_plasmid_pPHPALO418,_complete_sequence" = "P. aeruginosa PaLo418",
+                   "contig_009" = "009 Phage",
+                   "CP102178.1_Pseudomonas_corrugata_strain_B21-055_plasmid_pPcorr-B21-055,_complete_sequence" = "P. corrugata B21-055")
+
+
+# pivot data longer and apply custom order
+longer <- sim_dist_table |> 
+  pivot_longer(cols = -genome, 
+               names_to = "comparison_genome",
+               values_to = "similarity") |> 
+  mutate(capped_similarity = ifelse(similarity > 100, 100, similarity), #cap values at 100
+    genome = factor(genome, levels = center_ordered_genomes),
+    comparison_genome = factor(comparison_genome, levels = center_ordered_genomes)) # apply custom centre order to both axes
+           
+heatmap_plot <- ggplot(data = longer, aes(x = genome, y = comparison_genome, fill = capped_similarity))+
+  geom_tile(colour = "white", size = 0.2) +
+  scale_fill_gradientn(
+    colors = my_colors,
+    values = scales::rescale(points),
+    name = "Similarity") +
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 12),
+        axis.text.y = element_text(size =12),
+        plot.title = element_text(face = "bold", hjust = 0.5))+
+  labs(title = "Genome Similarity Heat Map",
+       x = "",
+       y = "")+
+  scale_x_discrete(labels = clean_labels) +
+  scale_y_discrete(labels = clean_labels) +
+  geom_text(aes(label = round(similarity, 0),
+      color = ifelse(capped_similarity < 75, "black", "white")),
+      size = 3,
+      fontface = "bold") +
+  scale_color_identity() 
+heatmap_plot
+ggsave("plots/heatmap_plot.png", plot = heatmap_plot, width = 7, height = 5, dpi = 300)
+
